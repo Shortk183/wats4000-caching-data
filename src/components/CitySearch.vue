@@ -62,15 +62,18 @@ export default {
       this.results = null;
       this.showLoading = true;
 
-      // TODO: Create a value called `cacheLabel` to refer to this query in the cache
-
-      // TODO: Create a value called `cacheExpiry` that represents 15 minutes in milliseconds.
+     
+      let cacheLabel = 'citySearch_${this.query}';
+      
+      let cacheExpiry = 15 * 60 * 1000;
 
       // TODO: Wrap this API call in a conditional to check if the request should be made.
       // Use this.$ls.get() to check if there is a cached query
       // If there is a cached query, use that data instead of making an API request
       // If not, make the API request and then cache the value for the amount of time specified in `cacheExpiry`
-
+      if(!this.$ls.get(cacheLabel)){
+        //No cache exists, Perform API call
+      console.log(`NO cache detected for ${cacheLabel}.`);
       API.get('find', {
         params: {
             q: this.query
@@ -78,6 +81,8 @@ export default {
       })
       .then(response => {
         this.results = response.data;
+        //Save API results to localStorage cache
+        this.$ls.set(cacheLabel, this.results, cacheExpiry);
         this.showLoading = false;
       })
       .catch(error => {
@@ -87,6 +92,12 @@ export default {
         });
         this.showLoading = false;
       });
+      }else{
+       //Cache Exists.
+       consle.log(`Valid cache detected for ${cacheLabel}.`);
+       this.result = this.$ls.get(cacheLable);
+       this.showLoading = false; 
+      }
     }
   }
 }
